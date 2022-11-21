@@ -17,6 +17,9 @@ module.exports = (sequelize, Sequelize) => {
       stripe_product_id: {
         type: Sequelize.STRING,
       },
+      features: {
+        type: Sequelize.TEXT,
+      },
     },
     { underscored: true },
   );

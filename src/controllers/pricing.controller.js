@@ -65,6 +65,7 @@ exports.create = async (req, res, next) => {
       name: req.body.name,
       price: req.body.price,
       description: req.body.description,
+      features: req.body.features,
     };
     const product = await createProduct(req.body.name, req.body.description);
     const stripePrice = await createPrices(product.id, req.body.price);
@@ -96,6 +97,7 @@ exports.update = async (req, res, next) => {
     name: req.body.name,
     price: req.body.price,
     description: req.body.description,
+    features: req.body.features,
   };
 
   const item = await Pricings.findByPk(id);
