@@ -1,4 +1,4 @@
-const { UserSubscriptions, Users } = require('../models');
+const { UserSubscriptions, Users, Pricings } = require('../models');
 
 exports.webhook = async (req, res) => {
   // const sig = req.headers['stripe-signature'];
@@ -27,8 +27,11 @@ exports.webhook = async (req, res) => {
         where: { email: invoice.customer_email },
       });
       const pricingId = invoice.lines.data[0].price.id;
+      const pricing = await Pricings.findOne({
+        where: { stripe_price_id: pricingId },
+      });
       await Users.update(
-        { pricing_id: pricingId },
+        { pricing_id: pricing.id },
         { where: { id: users.id } },
       );
       break;
