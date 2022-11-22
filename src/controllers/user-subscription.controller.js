@@ -27,9 +27,9 @@ exports.create = async (req, res, next) => {
       return next(new NotFoundError('Subscriptions plan not found'));
     }
     const session = await createSubscriptionCheckoutSessions(
-      'http://localhost:5000/cancel-payment',
+      `${process.env.CLIENT_URL}cancel-payment`,
       'subscription',
-      'http://localhost:5000/payment-success',
+      `${process.env.CLIENT_URL}payment-success`,
       pricings.stripe_price_id,
       stripeCustomerId,
     );
