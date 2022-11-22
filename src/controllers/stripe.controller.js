@@ -1,17 +1,14 @@
-const { stripe } = require('../lib/stripe');
 const { UserSubscriptions, Users } = require('../models');
 
-const endpointSecret = process.env.STRIPE_WEBHOOK_KEY;
-
 exports.webhook = async (req, res) => {
-  const sig = req.headers['stripe-signature'];
-
-  let event;
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-  } catch (error) {
-    return res.status(400).send(`Webhook Error:${error.message}`);
-  }
+  // const sig = req.headers['stripe-signature'];
+  // let event;
+  // try {
+  //   event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  // } catch (error) {
+  //   return res.status(400).send(`Webhook Error:${error.message}`);
+  // }
+  const event = { type: req.body.type, data: req.body.data };
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object;
