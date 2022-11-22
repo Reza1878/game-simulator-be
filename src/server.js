@@ -8,6 +8,7 @@ const pricingRoute = require('./routes/pricing.routes');
 const simulatorBanOptionRoute = require('./routes/simulator-option-ban.routes');
 const userRoute = require('./routes/users.routes');
 const authRoute = require('./routes/auth.routes');
+const stripeRoute = require('./routes/stripe.routes');
 const userSubsription = require('./routes/user-subscription.routes');
 
 const app = express();
@@ -28,9 +29,11 @@ app.use('/api/simulator-ban-options', simulatorBanOptionRoute);
 app.use('/api/users', userRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/subscriptions', userSubsription);
+app.use('/api/stripe-webhooks', stripeRoute);
 
 app.use((err, req, res, next) => {
   if (err) {
+    // eslint-disable-next-line no-console
     console.log(err);
     if (err instanceof ClientError) {
       return res

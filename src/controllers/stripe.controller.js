@@ -1,4 +1,5 @@
 const { stripe } = require('../lib/stripe');
+const { UserSubscriptions, Users } = require('../models');
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_KEY;
 
@@ -11,20 +12,41 @@ exports.webhook = async (req, res) => {
   } catch (error) {
     return res.status(400).send(`Webhook Error:${error.message}`);
   }
-
   switch (event.type) {
-    case 'checkout.session.completed':
-      //   const session = event.data.object;
+    case 'checkout.session.completed': {
+      const session = event.data.object;
+      const userSession = await UserSubscriptions.findOne({
+        where: { stripe_checkout_session_id: session.id },
+      });
+      await Users.update(
+        { pricing_id: userSession.pricing_id },
+        { where: { id: userSession.user_id } },
+      );
       break;
-    case 'checkout.session.expired':
-      //   const session = event.data.object;
+    }
+    case 'invoice.paid': {
+      const invoice = event.data.object;
+      const users = await Users.findOne({
+        where: { email: invoice.customer_email },
+      });
+      const pricingId = invoice.lines.data[0].price.id;
+      await Users.update(
+        { pricing_id: pricingId },
+        { where: { id: users.id } },
+      );
       break;
-    case 'customer.subscription.deleted':
-      // const subcription = event.data.object;
+    }
+    case 'invoice.payment_failed': {
+      const invoice = event.data.object;
+      const users = await Users.findOne({
+        where: { email: invoice.customer_email },
+      });
+      await Users.update({ pricing_id: null }, { where: { id: users.id } });
       break;
-    case 'customer.subscription.updated':
-      break;
+    }
     default:
+      // eslint-disable-next-line no-console
+      console.log('No event handler', event);
       break;
   }
   return res.send();

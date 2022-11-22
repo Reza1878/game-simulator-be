@@ -12,8 +12,10 @@ exports.create = async (req, res, next) => {
     if (!users) {
       return next(new NotFoundError('Users not found'));
     }
+    let stripeCustomerId = users.stripe_customer_id;
     if (!users.stripe_customer_id) {
       const stripeCustomer = await addNewCustomer(users.email);
+      stripeCustomerId = stripeCustomer.id;
       Users.update(
         { stripe_customer_id: stripeCustomer.id },
         { where: { id: users.id } },
@@ -29,6 +31,7 @@ exports.create = async (req, res, next) => {
       'subscription',
       'http://localhost:5000/payment-success',
       pricings.stripe_price_id,
+      stripeCustomerId,
     );
 
     const params = {

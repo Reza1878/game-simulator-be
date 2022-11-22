@@ -27,12 +27,11 @@ const UserSubscriptions = require('./user-subscription.model')(
   sequelize,
   Sequelize,
 );
-const UserTiers = require('./user-tier.model')(sequelize, Sequelize);
 
-UserTiers.hasOne(Users, {
-  foreignKey: 'user_tier_id',
+Pricings.hasOne(Users, {
+  foreignKey: 'pricing_id',
 });
-Users.belongsTo(UserTiers);
+Users.belongsTo(Pricings);
 Users.hasOne(UserSubscriptions, {
   foreignKey: 'user_id',
 });
