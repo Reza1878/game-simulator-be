@@ -33,7 +33,7 @@ app.use('/api/auth', authRoute);
 app.use('/api/subscriptions', userSubsription);
 app.use('/api/stripe-webhooks', stripeRoute);
 app.use('/api/teams', teamRoute);
-app.use('/api/heroes-role', heroesRoleRoute);
+app.use('/api/heroes-roles', heroesRoleRoute);
 
 app.use((err, req, res, next) => {
   if (err) {
