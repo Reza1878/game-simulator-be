@@ -1,5 +1,6 @@
+const InvariantError = require('../exceptions/InvariantError');
 const NotFoundError = require('../exceptions/NotFoundError');
-const { SimulatorOptionBans, Sequelize } = require('../models');
+const { Teams, Sequelize } = require('../models');
 const { createSuccessResponse } = require('../utils/response');
 
 exports.findAll = async (req, res, next) => {
@@ -8,16 +9,17 @@ exports.findAll = async (req, res, next) => {
     const params = {};
     if (limit) params.limit = +limit;
     if (offset) params.offset = +offset - 1;
-    const data = await SimulatorOptionBans.findAll(params);
+
+    const data = await Teams.findAll(params);
     const response = {
       status: 'success',
-      message: 'Success get ban amount',
+      message: 'Success get teams',
       data,
     };
     delete params.limit;
     delete params.offset;
     if (limit) {
-      const totalItems = await SimulatorOptionBans.findAll({
+      const totalItems = await Teams.findAll({
         attributes: [[Sequelize.fn('COUNT', Sequelize.col('id')), 'total']],
       });
 
@@ -28,7 +30,6 @@ exports.findAll = async (req, res, next) => {
       };
       response.page = page;
     }
-
     return res.json(response);
   } catch (error) {
     return next(error);
@@ -38,28 +39,28 @@ exports.findAll = async (req, res, next) => {
 exports.create = async (req, res, next) => {
   try {
     const params = {
-      ban_count: req.body.ban_count,
+      name: req.body.name,
+      side: req.body.side,
     };
-    const data = await SimulatorOptionBans.create(params);
-    return createSuccessResponse(
-      res,
-      'Success create simulator option bans',
-      data,
-      201,
-    );
+    const current = await Teams.findOne({ where: { side: req.body.side } });
+    if (current) {
+      return next(new InvariantError('Team side already exist'));
+    }
+    const data = await Teams.create(params);
+    return createSuccessResponse(res, 'Success create team', data, 201);
   } catch (error) {
-    return next(new Error());
+    return next(error);
   }
 };
 
 exports.findById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const item = await SimulatorOptionBans.findByPk(id);
+    const item = await Teams.findByPk(id);
     if (!item) {
       return next(new NotFoundError());
     }
-    return createSuccessResponse(res, 'Success get simulator option ban', item);
+    return createSuccessResponse(res, 'Success get team', item);
   } catch (error) {
     return next(error);
   }
@@ -68,15 +69,22 @@ exports.findById = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const params = {
-      ban_count: req.body.ban_count,
-    };
-    const item = await SimulatorOptionBans.findByPk(id);
+    const item = await Teams.findByPk(id);
     if (!item) {
       return next(new NotFoundError());
     }
-    await SimulatorOptionBans.update(params, { where: { id } });
-    return createSuccessResponse(res, 'Success update simulator option ban');
+    const params = {
+      name: req.body.name,
+      side: req.body.side,
+    };
+    const current = await Teams.findOne({ where: { side: req.body.side } });
+    if (current) {
+      if (+current.id !== +id) {
+        return next(new InvariantError('Team side already exist'));
+      }
+    }
+    await Teams.update(params, { where: { id } });
+    return createSuccessResponse(res, 'Success update team');
   } catch (error) {
     return next(error);
   }
@@ -85,13 +93,13 @@ exports.update = async (req, res, next) => {
 exports.delete = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const item = await SimulatorOptionBans.findByPk(id);
+    const item = await Teams.findByPk(id);
     if (!item) {
       return next(new NotFoundError());
     }
-    await SimulatorOptionBans.destroy({ where: { id } });
-    return createSuccessResponse(res, 'Success delete simulator option ban');
+    await Teams.destroy({ where: { id } });
+    return createSuccessResponse(res, 'Success delete team');
   } catch (error) {
-    return next(new Error());
+    return next(error);
   }
 };

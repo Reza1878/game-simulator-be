@@ -27,6 +27,8 @@ const UserSubscriptions = require('./user-subscription.model')(
   sequelize,
   Sequelize,
 );
+const Teams = require('./team.model')(sequelize, Sequelize);
+const HeroesRoles = require('./heroes-role.model')(sequelize, Sequelize);
 
 Pricings.hasOne(Users, {
   foreignKey: 'pricing_id',
@@ -51,4 +53,6 @@ module.exports = {
   SimulatorOptionBans,
   Users,
   UserSubscriptions,
+  Teams,
+  HeroesRoles,
 };

@@ -10,6 +10,8 @@ const userRoute = require('./routes/users.routes');
 const authRoute = require('./routes/auth.routes');
 const stripeRoute = require('./routes/stripe.routes');
 const userSubsription = require('./routes/user-subscription.routes');
+const teamRoute = require('./routes/team.routes');
+const heroesRoleRoute = require('./routes/heroes-role.routes');
 
 const app = express();
 const port = process.env.PORT;
@@ -30,6 +32,8 @@ app.use('/api/users', userRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/subscriptions', userSubsription);
 app.use('/api/stripe-webhooks', stripeRoute);
+app.use('/api/teams', teamRoute);
+app.use('/api/heroes-role', heroesRoleRoute);
 
 app.use((err, req, res, next) => {
   if (err) {
