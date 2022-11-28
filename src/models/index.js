@@ -28,6 +28,7 @@ const UserSubscriptions = require('./user-subscription.model')(
   Sequelize,
 );
 const Teams = require('./team.model')(sequelize, Sequelize);
+const Heroes = require('./heroes.model')(sequelize, Sequelize);
 const HeroesRoles = require('./heroes-role.model')(sequelize, Sequelize);
 
 Pricings.hasOne(Users, {
@@ -46,6 +47,12 @@ Pricings.hasOne(UserSubscriptions, {
 UserSubscriptions.belongsTo(Pricings, {
   foreignKey: 'pricing_id',
 });
+HeroesRoles.hasOne(Heroes, {
+  foreignKey: 'heroes_role_id',
+  onDelete: 'SET NULL',
+});
+Heroes.belongsTo(HeroesRoles, { foreignKey: 'heroes_role_id' });
+
 module.exports = {
   sequelize,
   Sequelize,
@@ -55,4 +62,5 @@ module.exports = {
   UserSubscriptions,
   Teams,
   HeroesRoles,
+  Heroes,
 };
