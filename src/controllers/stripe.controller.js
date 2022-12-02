@@ -15,8 +15,12 @@ exports.webhook = async (req, res) => {
       const userSession = await UserSubscriptions.findOne({
         where: { stripe_checkout_session_id: session.id },
       });
+      const pricing = await Pricings.findByPk(userSession.pricing_id);
       await Users.update(
-        { pricing_id: userSession.pricing_id },
+        {
+          pricing_id: userSession.pricing_id,
+          user_tier_id: pricing?.user_tier_id || null,
+        },
         { where: { id: userSession.user_id } },
       );
       break;
@@ -31,7 +35,7 @@ exports.webhook = async (req, res) => {
         where: { stripe_price_id: pricingId },
       });
       await Users.update(
-        { pricing_id: pricing.id },
+        { pricing_id: pricing.id, user_tier_id: pricing?.user_tier_id || null },
         { where: { id: users.id } },
       );
       break;
