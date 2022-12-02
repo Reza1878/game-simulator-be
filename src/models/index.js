@@ -32,10 +32,10 @@ const Heroes = require('./heroes.model')(sequelize, Sequelize);
 const HeroesRoles = require('./heroes-role.model')(sequelize, Sequelize);
 const UserTiers = require('./user-tier.model')(sequelize, Sequelize);
 
-Pricings.hasOne(Users, {
-  foreignKey: 'pricing_id',
+UserTiers.hasOne(Users, {
+  foreignKey: 'user_tier_id',
 });
-Users.belongsTo(Pricings);
+Users.belongsTo(UserTiers);
 Users.hasOne(UserSubscriptions, {
   foreignKey: 'user_id',
 });
@@ -47,6 +47,12 @@ Pricings.hasOne(UserSubscriptions, {
 });
 UserSubscriptions.belongsTo(Pricings, {
   foreignKey: 'pricing_id',
+});
+UserTiers.hasOne(Pricings, {
+  foreignKey: 'user_tier_id',
+});
+Pricings.belongsTo(UserTiers, {
+  foreignKey: 'user_tier_id',
 });
 HeroesRoles.hasOne(Heroes, {
   foreignKey: 'heroes_role_id',

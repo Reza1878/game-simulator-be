@@ -20,6 +20,9 @@ module.exports = (sequelize, Sequelize) => {
       features: {
         type: Sequelize.TEXT,
       },
+      interval: {
+        type: Sequelize.STRING,
+      },
     },
     { underscored: true },
   );

@@ -7,7 +7,7 @@ const {
   deleteProduct,
   updateProduct,
 } = require('../lib/stripe');
-const { Pricings, Sequelize } = require('../models');
+const { Pricings, Sequelize, UserTiers } = require('../models');
 const { createSuccessResponse } = require('../utils/response');
 
 exports.findAll = async (req, res, next) => {
@@ -31,7 +31,7 @@ exports.findAll = async (req, res, next) => {
       };
     }
 
-    const data = await Pricings.findAll(params);
+    const data = await Pricings.findAll({ ...params, include: UserTiers });
     const response = {
       status: 'success',
       message: 'Success get pricing',
@@ -66,9 +66,19 @@ exports.create = async (req, res, next) => {
       price: req.body.price,
       description: req.body.description,
       features: req.body.features,
+      user_tier_id: req.body.user_tier_id,
+      interval: req.body.interval,
     };
+    const userTier = await UserTiers.findByPk(req.body.user_tier_id);
+    if (!userTier) {
+      throw new NotFoundError('User tier not found');
+    }
     const product = await createProduct(req.body.name, req.body.description);
-    const stripePrice = await createPrices(product.id, req.body.price);
+    const stripePrice = await createPrices(
+      product.id,
+      req.body.price,
+      req.body.interval,
+    );
     params.stripe_price_id = stripePrice.id;
     params.stripe_product_id = product.id;
     const data = await Pricings.create(params);
@@ -81,7 +91,7 @@ exports.create = async (req, res, next) => {
 exports.findById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const item = await Pricings.findByPk(id);
+    const item = await Pricings.findOne({ where: { id }, include: UserTiers });
     if (!item) {
       return next(new NotFoundError());
     }
@@ -98,11 +108,17 @@ exports.update = async (req, res, next) => {
     price: req.body.price,
     description: req.body.description,
     features: req.body.features,
+    user_tier_id: req.body.user_tier_id,
+    inverval: req.body.interval,
   };
 
   const item = await Pricings.findByPk(id);
   if (!item) {
     return next(new NotFoundError());
+  }
+  const userTier = await UserTiers.findByPk(req.body.user_tier_id);
+  if (!userTier) {
+    throw new NotFoundError('User tier not found');
   }
   await updateProduct(item.stripe_product_id, {
     name: req.body.name,
@@ -112,6 +128,7 @@ exports.update = async (req, res, next) => {
     item.stripe_price_id,
     item.stripe_product_id,
     req.body.price,
+    req.body.interval,
   );
   params.stripe_price_id = updatedPrice.id;
   await Pricings.update(params, { where: { id } });

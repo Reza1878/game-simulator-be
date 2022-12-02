@@ -5,6 +5,8 @@ const pricingPostSchema = Joi.object({
   price: Joi.number().required(),
   description: Joi.string().required(),
   features: Joi.string().required(),
+  user_tier_id: Joi.number().required(),
+  interval: Joi.string().valid('month', 'year').required(),
 });
 
 const pricingPutSchema = Joi.object({
@@ -12,6 +14,8 @@ const pricingPutSchema = Joi.object({
   price: Joi.number().required(),
   description: Joi.string().required(),
   features: Joi.string().required(),
+  user_tier_id: Joi.number().required(),
+  interval: Joi.string().valid('month', 'year').required(),
 });
 
 module.exports = { pricingPostSchema, pricingPutSchema };
