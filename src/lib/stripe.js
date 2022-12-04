@@ -48,6 +48,10 @@ const createPrices = async (
   return price;
 };
 
+const deletePrices = async (id) => {
+  await stripe.prices.update(id, { active: false });
+};
+
 const updatePrices = async (
   id,
   productId,
@@ -55,12 +59,8 @@ const updatePrices = async (
   interval = 'month',
   currency = 'usd',
 ) => {
-  await this.deletePrices(id);
-  return this.createPrices(productId, amount, interval, currency);
-};
-
-const deletePrices = async (id) => {
-  await stripe.prices.update(id, { active: false });
+  await deletePrices(id);
+  return createPrices(productId, amount, interval, currency);
 };
 
 const addSubscriptions = async (customerId, pricingId) => {
