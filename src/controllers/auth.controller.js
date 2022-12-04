@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const InvariantError = require('../exceptions/InvariantError');
 const NotFoundError = require('../exceptions/NotFoundError');
 const { addNewCustomer } = require('../lib/stripe');
-const { Users, ResetPasswordRequest } = require('../models');
+const { Users, ResetPasswordRequest, UserTiers } = require('../models');
 const { createSuccessResponse } = require('../utils/response');
 const MailSender = require('../utils/mail-sender');
 
@@ -48,6 +48,10 @@ exports.register = async (req, res, next) => {
     const stripeCustomer = await addNewCustomer(params.email);
     params.stripe_customer_id = stripeCustomer.id;
     const user = await Users.create(params);
+    const userTier = await UserTiers.findOne({ where: { name: 'User' } });
+    if (userTier) {
+      params.user_tier_id = userTier.dataValues.id;
+    }
 
     const val = { ...user.dataValues };
 
