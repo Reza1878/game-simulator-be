@@ -1,10 +1,13 @@
+/* eslint-disable camelcase */
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const InvariantError = require('../exceptions/InvariantError');
 const NotFoundError = require('../exceptions/NotFoundError');
 const { addNewCustomer } = require('../lib/stripe');
-const { Users } = require('../models');
+const { Users, ResetPasswordRequest } = require('../models');
 const { createSuccessResponse } = require('../utils/response');
+const MailSender = require('../utils/mail-sender');
 
 exports.login = async (req, res, next) => {
   try {
@@ -58,6 +61,91 @@ exports.register = async (req, res, next) => {
       { ...val, token },
       201,
     );
+  } catch (error) {
+    return next(error);
+  }
+};
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const user = await Users.findOne({ where: { email: req.body.email } });
+    if (!user) {
+      throw new NotFoundError('Email not found!');
+    }
+    const token = crypto.randomBytes(64).toString('hex').substring(0, 10);
+    await ResetPasswordRequest.create({ token, email: user.email });
+    try {
+      const mailSender = new MailSender();
+      mailSender.sendEmail(
+        user.email,
+        'Reset Password',
+        null,
+        `<p>Hi ${user?.name} you can reset your password by click this <a href="${process.env.CLIENT_URL}reset-password?token=${token}">link</a></p>`,
+      );
+    } catch (error) {
+      await ResetPasswordRequest.destroy({ where: { token } });
+      throw Error('Failed to send reset password link');
+    }
+    return createSuccessResponse(
+      res,
+      'Request has been created, please check your email',
+    );
+  } catch (error) {
+    return next(error);
+  }
+};
+
+exports.validateResetPasswordToken = async (req, res, next) => {
+  try {
+    const { token } = req.body;
+
+    const current = await ResetPasswordRequest.findOne({ where: { token } });
+    if (!current) {
+      throw new NotFoundError('Token is invalid');
+    }
+
+    const limit = current.dataValues.createdAt.setMinutes(
+      current.dataValues.createdAt.getMinutes() + 10,
+    );
+
+    if (limit < new Date().getTime()) {
+      throw new InvariantError('Token expired');
+    }
+    return createSuccessResponse(res, 'Token valid');
+  } catch (error) {
+    return next(error);
+  }
+};
+
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { token, new_password, new_password_confirmation } = req.body;
+
+    const current = await ResetPasswordRequest.findOne({ where: { token } });
+    if (!current) {
+      throw new NotFoundError('Token is invalid');
+    }
+
+    const limit = current.dataValues.createdAt.setMinutes(
+      current.dataValues.createdAt.getMinutes() + 10,
+    );
+
+    if (limit < new Date().getTime()) {
+      throw new InvariantError('Token expired');
+    }
+
+    if (new_password !== new_password_confirmation) {
+      throw new InvariantError('Password not match');
+    }
+
+    const password = await bcrypt.hash(req.body.new_password, 10);
+
+    await Users.update(
+      { password },
+      { where: { email: current.dataValues.email } },
+    );
+    await ResetPasswordRequest.destroy({ where: { token } });
+    return createSuccessResponse(res, 'Success reset password');
   } catch (error) {
     return next(error);
   }

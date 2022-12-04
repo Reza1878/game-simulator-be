@@ -31,6 +31,10 @@ const Teams = require('./team.model')(sequelize, Sequelize);
 const Heroes = require('./heroes.model')(sequelize, Sequelize);
 const HeroesRoles = require('./heroes-role.model')(sequelize, Sequelize);
 const UserTiers = require('./user-tier.model')(sequelize, Sequelize);
+const ResetPasswordRequest = require('./reset-password-request.model')(
+  sequelize,
+  Sequelize,
+);
 
 UserTiers.hasOne(Users, {
   foreignKey: 'user_tier_id',
@@ -71,4 +75,5 @@ module.exports = {
   HeroesRoles,
   Heroes,
   UserTiers,
+  ResetPasswordRequest,
 };
