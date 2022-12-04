@@ -47,11 +47,11 @@ exports.register = async (req, res, next) => {
     };
     const stripeCustomer = await addNewCustomer(params.email);
     params.stripe_customer_id = stripeCustomer.id;
-    const user = await Users.create(params);
     const userTier = await UserTiers.findOne({ where: { name: 'User' } });
     if (userTier) {
       params.user_tier_id = userTier.dataValues.id;
     }
+    const user = await Users.create(params);
 
     const val = { ...user.dataValues };
 
