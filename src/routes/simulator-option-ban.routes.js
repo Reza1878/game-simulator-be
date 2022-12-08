@@ -7,7 +7,7 @@ const {
 } = require('../validators/simulator-option-ban.validator');
 const auth = require('../middleware/auth');
 
-router.get('/', simulatorOptionBanController.findAll);
+router.get('/', auth(), simulatorOptionBanController.findAll);
 router.post(
   '/',
   auth(),

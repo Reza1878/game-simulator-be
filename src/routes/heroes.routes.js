@@ -20,8 +20,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.get('/', heroController.findAll);
-router.get('/:id', heroController.findById);
+router.get('/', auth(), heroController.findAll);
+router.get('/:id', auth(), heroController.findById);
 router.post(
   '/',
   auth(),

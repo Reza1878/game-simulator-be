@@ -9,10 +9,12 @@ const { createSuccessResponse } = require('../utils/response');
 exports.findAll = async (req, res, next) => {
   try {
     // eslint-disable-next-line object-curly-newline
-    const { limit, offset, name, heroes_role_id } = req.query;
+    const { limit = 0, offset, name, heroes_role_id } = req.query;
 
     const params = {};
-    if (offset) params.offset = +offset - 1;
+    if (offset) params.offset = (+offset - 1) * limit;
+    if (limit) params.limit = limit;
+
     if (name) {
       params.where = {
         ...params.where,

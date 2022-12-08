@@ -7,7 +7,7 @@ const {
 } = require('../validators/team.validator');
 const auth = require('../middleware/auth');
 
-router.get('/', teamController.findAll);
+router.get('/', auth(), teamController.findAll);
 router.post('/', auth(), Validator(teamPostSchema), teamController.create);
 router.get('/:id', teamController.findById);
 router.put('/:id', auth(), Validator(teamPutSchema), teamController.update);
