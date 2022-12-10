@@ -30,6 +30,7 @@ const UserSubscriptions = require('./user-subscription.model')(
 const Teams = require('./team.model')(sequelize, Sequelize);
 const Heroes = require('./heroes.model')(sequelize, Sequelize);
 const HeroesRoles = require('./heroes-role.model')(sequelize, Sequelize);
+const HeroesRoleLists = require('./heroes-role-list.model')(sequelize);
 const UserTiers = require('./user-tier.model')(sequelize, Sequelize);
 const ResetPasswordRequest = require('./reset-password-request.model')(
   sequelize,
@@ -58,11 +59,9 @@ UserTiers.hasOne(Pricings, {
 Pricings.belongsTo(UserTiers, {
   foreignKey: 'user_tier_id',
 });
-HeroesRoles.hasOne(Heroes, {
-  foreignKey: 'heroes_role_id',
-  onDelete: 'SET NULL',
-});
-Heroes.belongsTo(HeroesRoles, { foreignKey: 'heroes_role_id' });
+Heroes.belongsToMany(HeroesRoles, { through: HeroesRoleLists });
+HeroesRoles.belongsToMany(Heroes, { through: HeroesRoleLists });
+HeroesRoleLists.sync();
 
 module.exports = {
   sequelize,
@@ -76,4 +75,5 @@ module.exports = {
   Heroes,
   UserTiers,
   ResetPasswordRequest,
+  HeroesRoleLists,
 };
