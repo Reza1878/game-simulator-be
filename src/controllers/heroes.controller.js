@@ -99,26 +99,15 @@ exports.create = async (req, res, next) => {
       banner_url: bannerUrl,
     };
 
-    const t = await sequelize.transaction();
-    try {
-      const heroes = await Heroes.create(params, { transaction: t });
-      await HeroesRoleLists.bulkCreate(
-        heroesRoleId.map(
-          (roleId) => ({
-            heroesRoleId: roleId,
-            heroId: heroes.dataValues.id,
-          }),
-          { transaction: t },
-        ),
-      );
+    const heroes = await Heroes.create(params);
+    await HeroesRoleLists.bulkCreate(
+      heroesRoleId.map((roleId) => ({
+        heroesRoleId: roleId,
+        heroId: heroes.dataValues.id,
+      })),
+    );
 
-      await t.commit();
-
-      return createSuccessResponse(res, 'Success create heroes', heroes, 201);
-    } catch (error) {
-      await t.rollback();
-      throw new Error('Something went wrong');
-    }
+    return createSuccessResponse(res, 'Success create heroes', heroes, 201);
   } catch (error) {
     if (bannerUrl) {
       deleteFile(bannerUrl);
