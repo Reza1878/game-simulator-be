@@ -51,7 +51,7 @@ exports.findAll = async (req, res, next) => {
     if (limit) {
       const where = [];
       if (name) {
-        where.push(`h.name ILIKE %${name}%`);
+        where.push(`h.name ILIKE '%${name}%'`);
       }
       if (heroes_role_id) {
         where.push(`hrl.heroes_role_id = ${heroes_role_id}`);
