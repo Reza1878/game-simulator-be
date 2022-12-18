@@ -5,13 +5,24 @@ const crypto = require('crypto');
 const InvariantError = require('../exceptions/InvariantError');
 const NotFoundError = require('../exceptions/NotFoundError');
 const { addNewCustomer } = require('../lib/stripe');
-const { Users, ResetPasswordRequest, UserTiers } = require('../models');
+const {
+  Users,
+  ResetPasswordRequest,
+  UserTiers,
+  sequelize,
+} = require('../models');
 const { createSuccessResponse } = require('../utils/response');
 const MailSender = require('../utils/mail-sender');
 
 exports.login = async (req, res, next) => {
   try {
-    const user = await Users.findOne({ where: { email: req.body.email } });
+    // const user = await Users.findOne({ where: { email: req.body.email } });
+    const user = await Users.findOne({
+      where: sequelize.where(
+        sequelize.fn('lower', sequelize.col('email')),
+        sequelize.fn('lower', req.body.email),
+      ),
+    });
     if (!user) {
       return next(new NotFoundError('Email address not found'));
     }
@@ -40,7 +51,7 @@ exports.register = async (req, res, next) => {
     }
     const password = await bcrypt.hash(req.body.password, 10);
     const params = {
-      email: req.body.email,
+      email: req.body.email.toLowerCase(),
       name: req.body.name,
       role: 'user',
       password,
