@@ -61,7 +61,6 @@ Pricings.belongsTo(UserTiers, {
 });
 Heroes.belongsToMany(HeroesRoles, { through: HeroesRoleLists });
 HeroesRoles.belongsToMany(Heroes, { through: HeroesRoleLists });
-HeroesRoleLists.sync();
 
 module.exports = {
   sequelize,
