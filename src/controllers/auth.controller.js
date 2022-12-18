@@ -83,7 +83,12 @@ exports.register = async (req, res, next) => {
 
 exports.forgotPassword = async (req, res, next) => {
   try {
-    const user = await Users.findOne({ where: { email: req.body.email } });
+    const user = await Users.findOne({
+      where: sequelize.where(
+        sequelize.fn('lower', sequelize.col('email')),
+        sequelize.fn('lower', req.body.email),
+      ),
+    });
     if (!user) {
       throw new NotFoundError('Email not found!');
     }
