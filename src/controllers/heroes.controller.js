@@ -22,7 +22,7 @@ exports.findAll = async (req, res, next) => {
 
     const params = {};
     if (offset) params.offset = (+offset - 1) * limit;
-    if (limit) params.limit = limit;
+    if (limit) params.limit = +limit;
 
     if (name) {
       params.where = {
@@ -51,7 +51,7 @@ exports.findAll = async (req, res, next) => {
     if (limit) {
       const where = [];
       if (name) {
-        where.push(`h.name ILIKE '%${name}%'`);
+        where.push(`h.name LIKE '%${name}%'`);
       }
       if (heroes_role_id) {
         where.push(`hrl.heroes_role_id = ${heroes_role_id}`);
