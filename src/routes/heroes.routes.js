@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const path = require('path');
+const crypto = require('crypto');
 const multer = require('multer');
 const auth = require('../middleware/auth');
 const heroController = require('../controllers/heroes.controller');
@@ -14,7 +15,13 @@ const storage = multer.diskStorage({
     cb(null, path.join(__dirname, '../', '/uploads'));
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+    cb(
+      null,
+      `${Date.now()}${crypto
+        .randomBytes(64)
+        .toString('hex')
+        .substring(0, 10)}${path.extname(file.originalname)}`,
+    );
   },
 });
 
