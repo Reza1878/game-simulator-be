@@ -15,12 +15,15 @@ const storage = multer.diskStorage({
     cb(null, path.join(__dirname, '../', '/uploads'));
   },
   filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname)
+      ? path.extname(file.originalname)
+      : '.png';
     cb(
       null,
       `${Date.now()}${crypto
         .randomBytes(64)
         .toString('hex')
-        .substring(0, 10)}${path.extname(file.originalname)}`,
+        .substring(0, 10)}${ext}`,
     );
   },
 });

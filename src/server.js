@@ -14,6 +14,7 @@ const teamRoute = require('./routes/team.routes');
 const heroesRoleRoute = require('./routes/heroes-role.routes');
 const heroesRoute = require('./routes/heroes.routes');
 const userTierRoute = require('./routes/user-tier.routes');
+const mapRoute = require('./routes/map.routes');
 
 const app = express();
 const port = process.env.PORT;
@@ -38,6 +39,7 @@ app.use('/api/teams', teamRoute);
 app.use('/api/heroes-roles', heroesRoleRoute);
 app.use('/api/heroes', heroesRoute);
 app.use('/api/user-tiers', userTierRoute);
+app.use('/api/maps', mapRoute);
 
 app.use('/files', express.static('./src/uploads'));
 

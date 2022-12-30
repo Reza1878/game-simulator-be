@@ -36,6 +36,7 @@ const ResetPasswordRequest = require('./reset-password-request.model')(
   sequelize,
   Sequelize,
 );
+const Maps = require('./map.model')(sequelize, Sequelize);
 
 UserTiers.hasOne(Users, {
   foreignKey: 'user_tier_id',
@@ -75,4 +76,5 @@ module.exports = {
   UserTiers,
   ResetPasswordRequest,
   HeroesRoleLists,
+  Maps,
 };
