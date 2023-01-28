@@ -17,6 +17,8 @@ const userTierRoute = require('./routes/user-tier.routes');
 const mapRoute = require('./routes/map.routes');
 const adsRoute = require('./routes/ads.route');
 const iconRoute = require('./routes/icons.route');
+const settingRoute = require('./routes/setting.route');
+const contactUsRoute = require('./routes/contact-us.routes');
 
 const app = express();
 const port = process.env.PORT;
@@ -44,6 +46,8 @@ app.use('/api/user-tiers', userTierRoute);
 app.use('/api/maps', mapRoute);
 app.use('/api/ads', adsRoute);
 app.use('/api/icons', iconRoute);
+app.use('/api/settings', settingRoute);
+app.use('/api/contact-us', contactUsRoute);
 
 app.use('/files', express.static('./src/uploads'));
 
