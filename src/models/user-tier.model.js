@@ -5,6 +5,9 @@ module.exports = (sequelize, Sequelize) => {
       name: {
         type: Sequelize.STRING,
       },
+      max_session: {
+        type: Sequelize.INTEGER,
+      },
     },
     { underscored: true },
   );

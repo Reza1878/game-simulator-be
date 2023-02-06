@@ -40,6 +40,10 @@ const Maps = require('./map.model')(sequelize, Sequelize);
 const Ads = require('./ads.model')(sequelize, Sequelize);
 const Icons = require('./icons.model')(sequelize, Sequelize);
 const Settings = require('./settings.model')(sequelize, Sequelize);
+const Authentications = require('./authentications.model')(
+  sequelize,
+  Sequelize,
+);
 
 UserTiers.hasOne(Users, {
   foreignKey: 'user_tier_id',
@@ -83,4 +87,5 @@ module.exports = {
   Ads,
   Icons,
   Settings,
+  Authentications,
 };

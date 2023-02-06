@@ -10,6 +10,7 @@ const {
   ResetPasswordRequest,
   UserTiers,
   sequelize,
+  Authentications,
 } = require('../models');
 const { createSuccessResponse } = require('../utils/response');
 const MailSender = require('../utils/mail-sender');
@@ -34,8 +35,30 @@ exports.login = async (req, res, next) => {
     const token = jwt.sign({ user_id: user.id }, process.env.JWT_ACCESS_KEY, {
       expiresIn: +process.env.TOKEN_MAX_AGE_SEC,
     });
+    const refresh_token = jwt.sign(
+      { user_id: user.id },
+      process.env.JWT_REFRESH_KEY,
+    );
+    await Authentications.create({ token: refresh_token, user_id: user.id });
+
+    if (user.role === 'user') {
+      const tier = await UserTiers.findByPk(user.user_tier_id);
+      if (tier.max_session) {
+        const { count } = await Authentications.findAndCountAll({
+          where: { user_id: user.id },
+        });
+        if (+count > +tier.max_session) {
+          const curr = await Authentications.findOne({
+            where: { user_id: user.id },
+          });
+          curr.destroy();
+        }
+      }
+    }
+
     delete val.password;
     val.token = token;
+    val.refresh_token = refresh_token;
     return createSuccessResponse(res, 'Authentication success', val);
   } catch (error) {
     return next(error);
@@ -69,11 +92,16 @@ exports.register = async (req, res, next) => {
     const token = jwt.sign({ user_id: val.id }, process.env.JWT_ACCESS_KEY, {
       expiresIn: +process.env.TOKEN_MAX_AGE_SEC,
     });
+    const refresh_token = jwt.sign(
+      { user_id: val.id },
+      process.env.JWT_REFRESH_KEY,
+    );
+    await Authentications.create({ token: refresh_token, user_id: val.id });
     delete val.password;
     return createSuccessResponse(
       res,
       'Register success',
-      { ...val, token },
+      { ...val, token, refresh_token },
       201,
     );
   } catch (error) {
@@ -132,6 +160,47 @@ exports.validateResetPasswordToken = async (req, res, next) => {
       throw new InvariantError('Token expired');
     }
     return createSuccessResponse(res, 'Token valid');
+  } catch (error) {
+    return next(error);
+  }
+};
+
+exports.refreshToken = async (req, res, next) => {
+  try {
+    const { refresh_token } = req.body;
+    const refreshToken = await Authentications.findOne({
+      where: {
+        token: refresh_token,
+      },
+    });
+    if (!refreshToken) {
+      throw new NotFoundError('Token not found');
+    }
+    const token = jwt.sign(
+      { user_id: refreshToken.user_id },
+      process.env.JWT_ACCESS_KEY,
+      {
+        expiresIn: +process.env.TOKEN_MAX_AGE_SEC,
+      },
+    );
+    return createSuccessResponse(res, 'Success refresh token', { token });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+exports.logout = async (req, res, next) => {
+  try {
+    const { refresh_token } = req.body;
+    const refreshToken = await Authentications.findOne({
+      where: {
+        token: refresh_token,
+      },
+    });
+    if (refreshToken) {
+      await refreshToken.destroy();
+    }
+    return createSuccessResponse(res, 'Logout success');
   } catch (error) {
     return next(error);
   }

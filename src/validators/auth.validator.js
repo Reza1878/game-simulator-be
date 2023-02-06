@@ -25,10 +25,15 @@ const resetPasswordPostSchema = Joi.object({
   new_password_confirmation: Joi.string().min(8).required(),
 });
 
+const refreshAccessTokenPostSchema = Joi.object({
+  refresh_token: Joi.string().required(),
+});
+
 module.exports = {
   authPostSchema,
   registerPostSchema,
   forgotPasswordPostSchema,
   validateForgotPasswordPostSchema,
   resetPasswordPostSchema,
+  refreshAccessTokenPostSchema,
 };

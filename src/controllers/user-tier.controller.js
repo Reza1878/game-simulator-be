@@ -45,6 +45,7 @@ exports.create = async (req, res, next) => {
   try {
     const params = {
       name: req.body.name,
+      max_session: req.body.max_session,
     };
     const data = await UserTiers.create(params);
     return createSuccessResponse(res, 'Success create user tier', data, 201);
@@ -75,6 +76,7 @@ exports.update = async (req, res, next) => {
     }
     const params = {
       name: req.body.name,
+      max_session: req.body.max_session,
     };
     await UserTiers.update(params, { where: { id } });
     return createSuccessResponse(res, 'Success update tier');

@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const jwt = require('jsonwebtoken');
 const AuthenticationError = require('../exceptions/AuthenticationError');
 const UnauthorizedError = require('../exceptions/UnauthorizedError');
