@@ -14,6 +14,7 @@ const {
 } = require('../models');
 const { createSuccessResponse } = require('../utils/response');
 const MailSender = require('../utils/mail-sender');
+const { checkUserSession } = require('../utils/session');
 
 exports.login = async (req, res, next) => {
   try {
@@ -41,20 +42,7 @@ exports.login = async (req, res, next) => {
     );
     await Authentications.create({ token: refresh_token, user_id: user.id });
 
-    if (user.role === 'user') {
-      const tier = await UserTiers.findByPk(user.user_tier_id);
-      if (tier.max_session) {
-        const { count } = await Authentications.findAndCountAll({
-          where: { user_id: user.id },
-        });
-        if (+count > +tier.max_session) {
-          const curr = await Authentications.findOne({
-            where: { user_id: user.id },
-          });
-          curr.destroy();
-        }
-      }
-    }
+    await checkUserSession(user);
 
     delete val.password;
     val.token = token;

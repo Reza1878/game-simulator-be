@@ -5,7 +5,7 @@ const { settingPutSchema } = require('../validators/setting.validator');
 const auth = require('../middleware/auth');
 const isAdmin = require('../middleware/is-admin');
 
-router.get('/', auth(), isAdmin(), settingController.findAll);
+router.get('/', settingController.findAll);
 router.put(
   '/',
   auth(),

@@ -20,7 +20,10 @@ exports.update = async (req, res, next) => {
     const curr = await Settings.findOne();
     if (curr) await curr.destroy();
 
-    const data = await Settings.create({ email: req.body.email });
+    const data = await Settings.create({
+      email: req.body.email,
+      donation_link: req.body.donation_link,
+    });
     return createSuccessResponse(res, 'Success update setting', data);
   } catch (error) {
     return next(error);

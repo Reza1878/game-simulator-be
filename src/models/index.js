@@ -17,6 +17,7 @@ const sequelize = new Sequelize(
   },
 );
 
+const Settings = require('./settings.model')(sequelize, Sequelize);
 const Pricings = require('./pricing.model')(sequelize, Sequelize);
 const SimulatorOptionBans = require('./simulator-option-ban.models')(
   sequelize,
@@ -39,7 +40,6 @@ const ResetPasswordRequest = require('./reset-password-request.model')(
 const Maps = require('./map.model')(sequelize, Sequelize);
 const Ads = require('./ads.model')(sequelize, Sequelize);
 const Icons = require('./icons.model')(sequelize, Sequelize);
-const Settings = require('./settings.model')(sequelize, Sequelize);
 const Authentications = require('./authentications.model')(
   sequelize,
   Sequelize,

@@ -5,6 +5,9 @@ module.exports = (sequelize, Sequelize) => {
       email: {
         type: Sequelize.STRING,
       },
+      donation_link: {
+        type: Sequelize.STRING,
+      },
     },
     { underscored: true },
   );
