@@ -24,6 +24,7 @@ exports.login = async (req, res, next) => {
         sequelize.fn('lower', sequelize.col('email')),
         sequelize.fn('lower', req.body.email),
       ),
+      include: UserTiers,
     });
     if (!user) {
       return next(new NotFoundError('Email address not found'));
@@ -223,6 +224,19 @@ exports.resetPassword = async (req, res, next) => {
     );
     await ResetPasswordRequest.destroy({ where: { token } });
     return createSuccessResponse(res, 'Success reset password');
+  } catch (error) {
+    return next(error);
+  }
+};
+
+exports.fetchMe = async (req, res, next) => {
+  try {
+    const { user_id: userId } = req.user;
+    const user = await Users.findOne({
+      where: { id: userId },
+      include: UserTiers,
+    });
+    return createSuccessResponse(res, 'Success get user data', user);
   } catch (error) {
     return next(error);
   }

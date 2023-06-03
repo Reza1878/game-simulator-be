@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const authController = require('../controllers/auth.controller');
 const Validator = require('../middleware/validator');
+const auth = require('../middleware/auth');
 const {
   authPostSchema,
   registerPostSchema,
@@ -41,4 +42,5 @@ router.post(
   Validator(refreshAccessTokenPostSchema),
   authController.logout,
 );
+router.get('/fetch-me', auth(), authController.fetchMe);
 module.exports = router;
